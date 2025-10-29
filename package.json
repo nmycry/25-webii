@@ -34,7 +34,8 @@
   "dependencies": {
     "@prisma/client": "^6.16.3",
     "dotenv": "^17.2.3",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@eslint/css": "^0.11.1",

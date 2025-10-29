@@ -32,6 +32,6 @@ afterAll(async () => {
 beforeEach(async () => {
   // Descomente as linhas abaixo para limpar dados entre testes
   // CUIDADO: Isso vai deletar TODOS os dados das tabelas!
-  // await prisma.user.deleteMany({});
-  // console.log('🧹 Dados de teste limpos');
+  await prisma.user.deleteMany({});
+  console.log('🧹 Dados de teste limpos');
 });

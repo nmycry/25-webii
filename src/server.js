@@ -2,6 +2,7 @@
 import express from 'express';
 import prisma from './config/database.js';
 import userRoutes from './routes/userRoutes.js';
+import errorHandler from './middlewares/errorHandler.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -15,7 +16,6 @@ app.get('/health', async (req, res) => {
   let databaseMessage = 'Conexão com banco de dados funcionando';
 
   try {
-    // Tenta fazer uma query simples no banco
     await prisma.$queryRaw`SELECT 1`;
   } catch (error) {
     databaseStatus = 'ERROR';
@@ -23,7 +23,6 @@ app.get('/health', async (req, res) => {
     console.error('Erro na verificação do banco:', error);
   }
 
-  // Define o status HTTP baseado na saúde do banco
   const httpStatus = databaseStatus === 'OK' ? 200 : 503;
 
   res.status(httpStatus).json({
@@ -42,15 +41,23 @@ app.get('/health', async (req, res) => {
 });
 
 // Rotas da API
-app.use('/users', userRoutes); // <--
+app.use('/users', userRoutes);
 
 // Middleware de tratamento de rotas não encontradas
 app.use((req, res) => {
   res.status(404).json({
     success: false,
-    message: `Rota ${req.method} ${req.originalUrl} não encontrada`,
+    error: {
+      code: 'NOT_FOUND',
+      message: `Rota ${req.method} ${req.originalUrl} não encontrada`,
+    },
+    timestamp: new Date().toISOString(),
+    path: req.path,
   });
 });
+
+// IMPORTANTE: Middleware de erro deve ser o ÚLTIMO!
+app.use(errorHandler);
 
 // Inicializar servidor
 app.listen(PORT, () => {
@@ -59,5 +66,4 @@ app.listen(PORT, () => {
   console.log(`👥 Usuários: http://localhost:${PORT}/users`);
 });
 
-// Export default para ES Modules
 export default app;
